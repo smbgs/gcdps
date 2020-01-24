@@ -1,0 +1,79 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+
+  name: = #{common.fullName}
+
+  #[merge]{common.labels}
+  labels: {}
+
+spec:
+  replicas: 1 #{deployment.replicas}
+
+  selector:
+    matchLabels:
+      app: app #{common.name}
+      release: release #{common.release}
+
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: {} #{rollingUpdate}
+
+  template:
+    metadata:
+      #[merge]{common.labels}
+      labels: {}
+
+    spec:
+      serviceAccountName: = #{common.fullName}
+      terminationGracePeriodSeconds: 60
+
+      containers:
+        - image: = #{image.name ~ ":" ~ image.tag}
+          name: = #{}
+          resources: {} #{resources}
+
+          readinessProbe:
+            httpGet:
+              path: /ping
+              port: 0 #{ports.traefik.port}
+            failureThreshold: 1
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 2
+
+          livenessProbe:
+            httpGet:
+              path: /ping
+              port: 0 #{ports.traefik.port}
+            failureThreshold: 3
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 2
+
+          ports:
+
+            #[repeat]{ports}
+            - name: name #{i}
+              containerPort: 0 #{it.port}
+              protocol: TCP
+
+          #[append]{additionalArguments}
+          args:
+            - "--global.checknewversion=true"
+            - "--global.sendanonymoususage=true"
+
+            #[repeat]{ports}
+            - "" #{"--entryPoints." ~ i ~ ".address=:" ~ it.port}
+
+            - "" #{"--api.dashboard=" ~ dashboard.enable}
+
+            - "--ping=true"
+            - "--providers.kubernetescrd"
+            - "" #{"--log.level=" ~ logs.loglevel}
+
+      affinity: {} #{affinity}
+      tolerations: [] #{tolerations}
+      nodeSelector: {} #{nodeSelector}

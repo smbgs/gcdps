@@ -1,0 +1,22 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+
+  name: = #{common.fullName ~ "-dashboard"}
+
+  #[merge]{common.annotations}
+  annotations:
+    helm.sh/hook: "post-install"
+
+  #[merge]{common.labels}
+  labels: {}
+
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: PathPrefix(`/dashboard`) || PathPrefix(`/api`)
+      kind: Rule
+      services:
+        - name: api@internal
+          kind: TraefikService

@@ -1,0 +1,32 @@
+
+common:
+  name: traefik
+  release: 0.0.0
+
+gryml:
+
+  override:
+    - env.yml
+
+  output:
+
+    # Core
+
+    - k8s/core/deployment.yml
+    - k8s/core/service.yml
+
+    # CRD
+
+    #[if dashboard.ingressRoute]
+    - k8s/crd/dashboard-hook-ingressroute.yaml
+    - k8s/crd/ingressroute.yaml
+    - k8s/crd/ingressroutetcp.yaml
+    - k8s/crd/middlewares.yaml
+    - k8s/crd/tlsoptions.yaml
+    - k8s/crd/traefikservices.yaml
+
+    # RBAC
+
+    - k8s/rbac/clusterrole.yaml
+    - k8s/rbac/clusterrolebinding.yaml
+    - k8s/rbac/serviceaccount.yaml
