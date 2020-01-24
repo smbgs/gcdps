@@ -30,7 +30,7 @@ spec:
 
       containers:
         - image: = #{image.name ~ ":" ~ image.tag}
-          name: = #{}
+          name: = #{common.fullName}
           resources: {} #{resources}
 
           readinessProbe:
